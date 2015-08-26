@@ -16,6 +16,7 @@
 package org.everit.persistence.liquibase.ext.osgi;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -86,6 +87,12 @@ public final class LiquibaseOSGiUtil {
     } catch (InvalidSyntaxException e) {
       throw new SchemaExpressionSyntaxException("The filter contains an invalid filter string");
     }
+  }
+
+  public static List<BundleResource> findBundleResourcesBySchemaExpression(final Bundle bundle,
+      final String schemaExpression) {
+    // TODO
+    return Collections.emptyList();
   }
 
   public static Map<Bundle, List<BundleCapability>> findBundlesBySchemaExpression(

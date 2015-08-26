@@ -15,12 +15,14 @@
  */
 package org.everit.persistence.liquibase.ext.osgi;
 
+import java.util.List;
+
 import org.osgi.framework.Bundle;
-import org.osgi.framework.wiring.BundleWire;
 
 import liquibase.changelog.ChangeLogParameters;
 import liquibase.changelog.DatabaseChangeLog;
 import liquibase.exception.ChangeLogParseException;
+import liquibase.exception.LiquibaseException;
 import liquibase.osgi.OSGiResourceAccessor;
 import liquibase.parser.ChangeLogParser;
 import liquibase.parser.ChangeLogParserFactory;
@@ -50,12 +52,28 @@ public class EOSGiChangelogParser implements ChangeLogParser {
     OSGiResourceAccessor osgiResourceAccessor = (OSGiResourceAccessor) resourceAccessor;
     Bundle currentBundle = osgiResourceAccessor.getBundle();
 
-    BundleWire wire =
-        LiquibaseOSGiUtil.findMatchingWireBySchemaExpression(currentBundle, schemaExpression);
+    List<BundleResource> bundleResources =
+        LiquibaseOSGiUtil.findBundleResourcesBySchemaExpression(currentBundle, schemaExpression);
 
-    ChangeLogParserFactory.getInstance().getParser(fileName, resourceAccessor).parse(fileName,
-        changeLogParameters, resourceAccessor);
-    return null;
+    if (bundleResources.isEmpty()) {
+      throw new ChangeLogParseException("Could not find resource starting from bundle '"
+          + currentBundle + "' with schema expression '" + schemaExpression + "'");
+    }
+
+    BundleResource bundleResource = bundleResources.get(0);
+
+    OSGiResourceAccessor newOSGiResourceAccessor = osgiResourceAccessor;
+    if (!currentBundle.equals(bundleResource.bundle)) {
+      newOSGiResourceAccessor = new OSGiResourceAccessor(bundleResource.bundle);
+    }
+
+    try {
+      return ChangeLogParserFactory.getInstance()
+          .getParser(bundleResource.resourceName, newOSGiResourceAccessor)
+          .parse(bundleResource.resourceName, changeLogParameters, newOSGiResourceAccessor);
+    } catch (LiquibaseException e) {
+      throw new ChangeLogParseException(e);
+    }
   }
 
   @Override
