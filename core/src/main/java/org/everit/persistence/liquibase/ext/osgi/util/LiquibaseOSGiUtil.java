@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.persistence.liquibase.ext.osgi;
+package org.everit.persistence.liquibase.ext.osgi.util;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.felix.utils.manifest.Attribute;
 import org.apache.felix.utils.manifest.Clause;
@@ -89,33 +86,12 @@ public final class LiquibaseOSGiUtil {
     }
   }
 
-  public static List<BundleResource> findBundleResourcesBySchemaExpression(final Bundle bundle,
-      final String schemaExpression) {
-    // TODO
-    return Collections.emptyList();
-  }
-
-  public static Map<Bundle, List<BundleCapability>> findBundlesBySchemaExpression(
-      final String schemaExpression,
+  public static List<BundleResource> findBundlesBySchemaExpression(final String schemaExpression,
       final BundleContext bundleContext, final int necessaryBundleStates) {
     Filter filter =
         LiquibaseOSGiUtil.createFilterForLiquibaseCapabilityAttributes(schemaExpression);
-    Map<Bundle, List<BundleCapability>> result =
-        new TreeMap<Bundle, List<BundleCapability>>(new Comparator<Bundle>() {
 
-          @Override
-          public int compare(final Bundle o1, final Bundle o2) {
-            long bundle1Id = o1.getBundleId();
-            long bundle2Id = o2.getBundleId();
-            if (bundle1Id == bundle2Id) {
-              return 0;
-            } else if (bundle1Id < bundle2Id) {
-              return -1;
-            } else {
-              return 1;
-            }
-          }
-        });
+    List<BundleResource> result = new ArrayList<BundleResource>();
     Bundle[] bundles = bundleContext.getBundles();
     for (Bundle bundle : bundles) {
       int state = bundle.getState();
@@ -124,14 +100,10 @@ public final class LiquibaseOSGiUtil {
         List<BundleCapability> capabilities = bundleWiring.getCapabilities(LIQUIBASE_CAPABILITY_NS);
         for (BundleCapability capability : capabilities) {
           Map<String, Object> attributes = capability.getAttributes();
-          if (attributes.get(LiquibaseOSGiUtil.ATTR_SCHEMA_RESOURCE) != null) {
+          Object schemaResourceAttr = attributes.get(LiquibaseOSGiUtil.ATTR_SCHEMA_RESOURCE);
+          if (schemaResourceAttr != null) {
             if (filter.matches(attributes)) {
-              List<BundleCapability> capabilityList = result.get(bundle);
-              if (capabilityList == null) {
-                capabilityList = new ArrayList<BundleCapability>();
-                result.put(bundle, capabilityList);
-              }
-              capabilityList.add(capability);
+              result.add(new BundleResource(bundle, String.valueOf(schemaResourceAttr)));
             }
           } else {
             // TODO log
@@ -142,7 +114,7 @@ public final class LiquibaseOSGiUtil {
     return result;
   }
 
-  public static final BundleWire findMatchingWireBySchemaExpression(final Bundle currentBundle,
+  public static BundleResource findMatchingWireBySchemaExpression(final Bundle currentBundle,
       final String schemaExpression) {
 
     BundleWiring bundleWiring = currentBundle.adapt(BundleWiring.class);
@@ -156,22 +128,24 @@ public final class LiquibaseOSGiUtil {
         LiquibaseOSGiUtil.createFilterForLiquibaseCapabilityAttributes(schemaExpression);
 
     Iterator<BundleWire> iterator = wires.iterator();
-    BundleWire matchingWire = null;
+    BundleResource bundleResource = null;
     // Iterate through the wires to find the one that matches the schema expression
-    while ((matchingWire == null) && iterator.hasNext()) {
+    while ((bundleResource == null) && iterator.hasNext()) {
       BundleWire wire = iterator.next();
       BundleCapability capability = wire.getCapability();
       Map<String, Object> capabilityAttributes = capability.getAttributes();
       if (capabilityFilter.matches(capabilityAttributes)) {
         Object schemaResourceAttr = capabilityAttributes.get(ATTR_SCHEMA_RESOURCE);
         if (schemaResourceAttr != null) {
-          matchingWire = wire;
+          bundleResource = new BundleResource(capability.getRevision().getBundle(),
+              String.valueOf(schemaResourceAttr));
         } else {
           // TODO Write WARNING
         }
       }
     }
-    return matchingWire;
+
+    return bundleResource;
   }
 
   private LiquibaseOSGiUtil() {

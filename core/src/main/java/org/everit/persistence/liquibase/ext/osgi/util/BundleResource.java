@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.persistence.liquibase.ext.osgi;
+package org.everit.persistence.liquibase.ext.osgi.util;
 
 import org.osgi.framework.Bundle;
 

@@ -1,5 +1,7 @@
 package org.everit.persistence.liquibase.ext.osgi.tests;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -15,6 +17,8 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.wiring.BundleWiring;
 
 import aQute.bnd.annotation.headers.ProvideCapability;
 import liquibase.Contexts;
@@ -32,29 +36,60 @@ import liquibase.osgi.OSGiResourceAccessor;
 @Service
 public class LiquibaseOSGiExtensionTest {
 
-  private Bundle bundle;
+  private BundleContext bundleContext;
 
   @Activate
   public void activate(final BundleContext bundleContext) {
-    this.bundle = bundleContext.getBundle();
+    this.bundleContext = bundleContext;
+  }
+
+  private Bundle installBundleFromResource(final String resourceName) {
+    BundleWiring bundleWiring = bundleContext.getBundle().adapt(BundleWiring.class);
+    ClassLoader classLoader = bundleWiring.getClassLoader();
+    try (InputStream inputStream = classLoader.getResourceAsStream(resourceName)) {
+      return bundleContext.installBundle(resourceName, inputStream);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } catch (BundleException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Test
   @TestDuringDevelopment
-  public void testParser() {
+  public void testParserWithReferencedBundle() {
+    Bundle testBundle = installBundleFromResource(
+        "META-INF/jars/org.everit.persistence.liquibase.ext.osgi.test1.jar");
+    try {
+      testBundle.start();
+    } catch (BundleException e) {
+      try {
+        testBundle.uninstall();
+      } catch (BundleException e1) {
+        e.addSuppressed(e1);
+      }
+      throw new RuntimeException(e);
+    }
+
     JdbcDataSource h2DataSource = new JdbcDataSource();
     h2DataSource.setURL("jdbc:h2:mem:");
 
     try (Connection connection = h2DataSource.getConnection()) {
       JdbcConnection jdbcConnection = new JdbcConnection(connection);
       Liquibase liquibase = new Liquibase(
-          "META-INF/liquibase/org.everit.persistence.liquibase.ext.osgi.changelog.xml",
-          new OSGiResourceAccessor(bundle), jdbcConnection);
+          "META-INF/liquibase/org.everit.persistence.liquibase.ext.osgi.test1.xml",
+          new OSGiResourceAccessor(testBundle), jdbcConnection);
       liquibase.update((Contexts) null);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     } catch (LiquibaseException e) {
       throw new RuntimeException(e);
+    } finally {
+      try {
+        testBundle.uninstall();
+      } catch (BundleException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 }

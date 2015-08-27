@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.persistence.liquibase.ext.osgi;
+package org.everit.persistence.liquibase.ext.osgi.parser;
 
-import java.util.List;
-
+import org.everit.persistence.liquibase.ext.osgi.util.BundleResource;
+import org.everit.persistence.liquibase.ext.osgi.util.LiquibaseOSGiUtil;
 import org.osgi.framework.Bundle;
 
 import liquibase.changelog.ChangeLogParameters;
@@ -52,15 +52,13 @@ public class EOSGiChangelogParser implements ChangeLogParser {
     OSGiResourceAccessor osgiResourceAccessor = (OSGiResourceAccessor) resourceAccessor;
     Bundle currentBundle = osgiResourceAccessor.getBundle();
 
-    List<BundleResource> bundleResources =
-        LiquibaseOSGiUtil.findBundleResourcesBySchemaExpression(currentBundle, schemaExpression);
+    BundleResource bundleResource =
+        LiquibaseOSGiUtil.findMatchingWireBySchemaExpression(currentBundle, schemaExpression);
 
-    if (bundleResources.isEmpty()) {
+    if (bundleResource == null) {
       throw new ChangeLogParseException("Could not find resource starting from bundle '"
           + currentBundle + "' with schema expression '" + schemaExpression + "'");
     }
-
-    BundleResource bundleResource = bundleResources.get(0);
 
     OSGiResourceAccessor newOSGiResourceAccessor = osgiResourceAccessor;
     if (!currentBundle.equals(bundleResource.bundle)) {
