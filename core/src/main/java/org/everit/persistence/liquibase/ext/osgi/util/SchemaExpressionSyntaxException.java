@@ -15,6 +15,9 @@
  */
 package org.everit.persistence.liquibase.ext.osgi.util;
 
+/**
+ * Exception that is thrown when the schema expression is not valid.
+ */
 public class SchemaExpressionSyntaxException extends RuntimeException {
 
   private static final long serialVersionUID = 5310372052132715708L;

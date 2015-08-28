@@ -49,6 +49,10 @@ public class EOSGiChangelogParser implements ChangeLogParser {
     String schemaExpression = physicalChangeLogLocation.substring(0,
         physicalChangeLogLocation.length() - EOSGI_EXTENSION.length());
 
+    if (!(resourceAccessor instanceof OSGiResourceAccessor)) {
+      throw new IllegalArgumentException(
+          "type of resourceAccessor must be " + OSGiResourceAccessor.class.getName());
+    }
     OSGiResourceAccessor osgiResourceAccessor = (OSGiResourceAccessor) resourceAccessor;
     Bundle currentBundle = osgiResourceAccessor.getBundle();
 

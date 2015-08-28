@@ -47,10 +47,10 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <EOSGi-TestNum>0</EOSGi-TestNum>
+            <EOSGi-TestNum>1</EOSGi-TestNum>
             <Provide-Capability>
-              liquibase.schema;name=org.everit.persistence.liquibase.ext.osgi.test0;resource=/META-INF/org.everit.persistence.liquibase.ext.osgi.test0.xml;version=3.0.0,
-              liquibase.schema;name=org.everit.persistence.liquibase.ext.osgi.test0_included;resource=/META-INF/org.everit.persistence.liquibase.ext.osgi.test0_included.xml
+              liquibase.schema;name=org.everit.persistence.liquibase.ext.osgi.test0;resource=/META-INF/liquibase/org.everit.persistence.liquibase.ext.osgi.test0.xml;version:Version="3.0.0",
+              liquibase.schema;name=org.everit.persistence.liquibase.ext.osgi.test0_included;resource="/META-INF/liquibase/org.everit.persistence.liquibase.ext.osgi.test0_included.xml"
             </Provide-Capability>
           </instructions>
         </configuration>

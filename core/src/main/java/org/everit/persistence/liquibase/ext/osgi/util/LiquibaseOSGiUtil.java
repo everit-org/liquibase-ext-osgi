@@ -34,6 +34,9 @@ import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 
+/**
+ * Util functions to use Liquibase OSGi extension features.
+ */
 public final class LiquibaseOSGiUtil {
 
   /**
@@ -55,6 +58,17 @@ public final class LiquibaseOSGiUtil {
    */
   public static final String LIQUIBASE_CAPABILITY_NS = "liquibase.schema";
 
+  /**
+   * Creates an OSGi filter based on a schema expression.
+   *
+   * @param schemaExpression
+   *          A schema expression like <code>myschema;filter:=(xx=yy)</code>
+   * @return The OSGi filter instance that contains the merge of the schema name (before the first
+   *         semicolon) and the optional filter expression. With the example at the parameter:
+   *         <code>(&(name=myschema)(xx=yy))</code>.
+   * @throws SchemaExpressionSyntaxException
+   *           if the provided schema expression is not valid.
+   */
   public static Filter createFilterForLiquibaseCapabilityAttributes(final String schemaExpression) {
     Clause[] clauses = Parser.parseClauses(new String[] { schemaExpression });
     if (clauses.length != 1) {
@@ -86,6 +100,19 @@ public final class LiquibaseOSGiUtil {
     }
   }
 
+  /**
+   * Find {@link BundleResource}s based on a schema expression in the OSGi container by analysing
+   * all {@link BundleCapability}s that belong to any bundle that is in one of the expected states.
+   *
+   * @param schemaExpression
+   *          The schema expression.
+   * @param bundleContext
+   *          The context of any active bundle in the OSGi environment to query the list of the
+   *          bundles.
+   * @param necessaryBundleStates
+   *          Only those bundles will be analysed that have the of the necessary bundle states.
+   * @return The list of {@link BundleResource}s that point to liquibase changelog files.
+   */
   public static List<BundleResource> findBundlesBySchemaExpression(final String schemaExpression,
       final BundleContext bundleContext, final int necessaryBundleStates) {
     Filter filter =
@@ -114,6 +141,18 @@ public final class LiquibaseOSGiUtil {
     return result;
   }
 
+  /**
+   * Finds the first BundleResource that is available based on the provided
+   * <code>schemaExpression</code> and the wires of the provided <code>bundle</code>.
+   *
+   * @param currentBundle
+   *          The bundle that is the consumer in the wire that has the matching Bundle capability on
+   *          the other side.
+   * @param schemaExpression
+   *          The schema expression that is used to find the matching capability.
+   * @return The available {@link BundleResource} or <code>null</code> if no such
+   *         {@link BundleResource} is available.
+   */
   public static BundleResource findMatchingWireBySchemaExpression(final Bundle currentBundle,
       final String schemaExpression) {
 
