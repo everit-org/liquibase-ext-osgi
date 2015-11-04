@@ -15,6 +15,8 @@
  */
 package org.everit.persistence.liquibase.ext.osgi.util;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.osgi.framework.Bundle;
@@ -44,7 +46,11 @@ public class BundleResource {
       final Map<String, Object> attributes) {
     this.bundle = bundle;
     this.resourceName = resourceName;
-    this.attributes = attributes;
+    if (attributes == null) {
+      this.attributes = Collections.emptyMap();
+    } else {
+      this.attributes = Collections.unmodifiableMap(new HashMap<String, Object>(attributes));
+    }
   }
 
 }
