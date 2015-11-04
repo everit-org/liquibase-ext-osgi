@@ -63,8 +63,7 @@
           <sourceDistPath>${source.dist.folder}</sourceDistPath>
           <jacoco>
             <includes>org.everit.persistence.liquibase.ext.osgi.*</includes>
-            <output>$${ if (System.getenv("EOSGI_STOP_AFTER_TESTS").equals("true")) "file"; else
-              "tcpserver"; }</output>
+            <output>$${ if (System.getenv("EOSGI_STOP_AFTER_TESTS").equals("true")) "file"; else "tcpserver"; }</output>
           </jacoco>
           <environments>
             <environment>

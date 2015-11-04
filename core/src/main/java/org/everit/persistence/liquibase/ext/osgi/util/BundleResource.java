@@ -15,6 +15,8 @@
  */
 package org.everit.persistence.liquibase.ext.osgi.util;
 
+import java.util.Map;
+
 import org.osgi.framework.Bundle;
 
 /**
@@ -22,13 +24,27 @@ import org.osgi.framework.Bundle;
  */
 public class BundleResource {
 
+  public final Map<String, Object> attributes;
+
   public final Bundle bundle;
 
   public final String resourceName;
 
-  public BundleResource(final Bundle bundle, final String resourceName) {
+  /**
+   * Constructor.
+   *
+   * @param bundle
+   *          the {@link Bundle} instance.
+   * @param resourceName
+   *          the name of the resource.
+   * @param attributes
+   *          The attributes of the bundle capability.
+   */
+  public BundleResource(final Bundle bundle, final String resourceName,
+      final Map<String, Object> attributes) {
     this.bundle = bundle;
     this.resourceName = resourceName;
+    this.attributes = attributes;
   }
 
 }

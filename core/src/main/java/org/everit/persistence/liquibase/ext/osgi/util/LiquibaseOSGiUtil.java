@@ -130,7 +130,8 @@ public final class LiquibaseOSGiUtil {
           Object schemaResourceAttr = attributes.get(LiquibaseOSGiUtil.ATTR_SCHEMA_RESOURCE);
           if (schemaResourceAttr != null) {
             if (filter.matches(attributes)) {
-              result.add(new BundleResource(bundle, String.valueOf(schemaResourceAttr)));
+              result
+                  .add(new BundleResource(bundle, String.valueOf(schemaResourceAttr), attributes));
             }
           } else {
             // TODO log
@@ -177,7 +178,7 @@ public final class LiquibaseOSGiUtil {
         Object schemaResourceAttr = capabilityAttributes.get(ATTR_SCHEMA_RESOURCE);
         if (schemaResourceAttr != null) {
           bundleResource = new BundleResource(capability.getRevision().getBundle(),
-              String.valueOf(schemaResourceAttr));
+              String.valueOf(schemaResourceAttr), capabilityAttributes);
         } else {
           // TODO Write WARNING
         }

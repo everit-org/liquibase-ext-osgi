@@ -15,6 +15,7 @@
  */
 package org.everit.persistence.liquibase.ext.osgi.parser;
 
+import org.everit.persistence.liquibase.ext.osgi.EOSGiResourceAccessor;
 import org.everit.persistence.liquibase.ext.osgi.util.BundleResource;
 import org.everit.persistence.liquibase.ext.osgi.util.LiquibaseOSGiUtil;
 import org.osgi.framework.Bundle;
@@ -27,6 +28,7 @@ import liquibase.osgi.OSGiResourceAccessor;
 import liquibase.parser.ChangeLogParser;
 import liquibase.parser.ChangeLogParserFactory;
 import liquibase.resource.ResourceAccessor;
+import liquibase.servicelocator.PrioritizedService;
 
 /**
  * Liquibase Parser implementation that can handle files with the eosgi extension. Such files are
@@ -38,7 +40,7 @@ public class EOSGiChangelogParser implements ChangeLogParser {
 
   @Override
   public int getPriority() {
-    return ChangeLogParser.PRIORITY_DEFAULT;
+    return PrioritizedService.PRIORITY_DEFAULT;
   }
 
   @Override
@@ -66,7 +68,8 @@ public class EOSGiChangelogParser implements ChangeLogParser {
 
     OSGiResourceAccessor newOSGiResourceAccessor = osgiResourceAccessor;
     if (!currentBundle.equals(bundleResource.bundle)) {
-      newOSGiResourceAccessor = new OSGiResourceAccessor(bundleResource.bundle);
+      newOSGiResourceAccessor =
+          new EOSGiResourceAccessor(bundleResource.bundle, bundleResource.attributes);
     }
 
     try {
