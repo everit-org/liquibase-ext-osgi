@@ -17,6 +17,7 @@ package org.everit.persistence.liquibase.ext.osgi.tests;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -98,6 +99,11 @@ public class LiquibaseOSGiExtensionTest {
           "META-INF/liquibase/org.everit.persistence.liquibase.ext.osgi.test1.xml",
           new OSGiResourceAccessor(testBundle), jdbcConnection);
       liquibase.update((Contexts) null);
+
+      try (CallableStatement statement =
+          connection.prepareCall("select * from \"test0_included\"")) {
+        statement.executeQuery();
+      }
     } catch (SQLException e) {
       throw new RuntimeException(e);
     } catch (LiquibaseException e) {
