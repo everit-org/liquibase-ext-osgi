@@ -24,12 +24,12 @@
   <parent>
     <groupId>org.everit.config</groupId>
     <artifactId>org.everit.config.oss</artifactId>
-    <version>7.2.0</version>
+    <version>7.3.0</version>
   </parent>
 
   <groupId>org.everit.persistence</groupId>
   <artifactId>org.everit.persistence.liquibase.ext.osgi</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
 
   <packaging>bundle</packaging>
   <name>Everit - Liquibase OSGi Extension</name>
@@ -93,7 +93,7 @@
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
-      <version>3.5.0-SNAPSHOT</version>
+      <version>3.5.0</version>
     </dependency>
     <dependency>
       <groupId>org.everit.osgi.bundles</groupId>

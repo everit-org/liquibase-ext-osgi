@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.everit.osgi.dev.testrunner.TestDuringDevelopment;
@@ -30,6 +31,7 @@ import org.everit.osgi.ecm.annotation.attribute.StringAttribute;
 import org.everit.osgi.ecm.annotation.attribute.StringAttributes;
 import org.everit.osgi.ecm.extender.ECMExtenderConstants;
 import org.h2.jdbcx.JdbcDataSource;
+import org.junit.Assert;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -102,7 +104,9 @@ public class LiquibaseOSGiExtensionTest {
 
       try (CallableStatement statement =
           connection.prepareCall("select * from \"test0_included\"")) {
-        statement.executeQuery();
+        try (ResultSet resultSet = statement.executeQuery()) {
+          Assert.assertNotNull(resultSet);
+        }
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);
