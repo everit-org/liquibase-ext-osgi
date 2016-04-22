@@ -65,7 +65,7 @@ public final class LiquibaseOSGiUtil {
    *          A schema expression like <code>myschema;filter:=(xx=yy)</code>
    * @return The OSGi filter instance that contains the merge of the schema name (before the first
    *         semicolon) and the optional filter expression. With the example at the parameter:
-   *         <code>(&(name=myschema)(xx=yy))</code>.
+   *         <code>(&amp;(name=myschema)(xx=yy))</code>.
    * @throws SchemaExpressionSyntaxException
    *           if the provided schema expression is not valid.
    */
