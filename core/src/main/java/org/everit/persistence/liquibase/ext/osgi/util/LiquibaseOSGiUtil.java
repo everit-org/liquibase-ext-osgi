@@ -40,12 +40,6 @@ import org.osgi.framework.wiring.BundleWiring;
 public final class LiquibaseOSGiUtil {
 
   /**
-   * The name attribute in the liquibase.schema capability. The name should be specified in the
-   * include tag of the changelog XML.
-   */
-  public static final String ATTR_SCHEMA_NAME = "name";
-
-  /**
    * Capability attribute that points to the place of the changelog file within the bundle.
    */
   public static final String ATTR_SCHEMA_RESOURCE = "resource";
@@ -56,7 +50,7 @@ public final class LiquibaseOSGiUtil {
    * wires of the bundle and looks for this capability to find the exact changelog file of the
    * inclusion.
    */
-  public static final String LIQUIBASE_CAPABILITY_NS = "liquibase.schema";
+  public static final String LIQUIBASE_CHANGELOG_CAPABILITY_NS = "liquibase.changelog";
 
   /**
    * Creates an OSGi filter based on a schema expression.
@@ -83,7 +77,7 @@ public final class LiquibaseOSGiUtil {
           "No Attributes in the schema expresson are supported.");
     }
     Directive[] directives = clause.getDirectives();
-    String filterString = "(" + ATTR_SCHEMA_NAME + "=" + schemaName + ")";
+    String filterString = "(" + LIQUIBASE_CHANGELOG_CAPABILITY_NS + "=" + schemaName + ")";
     if (directives.length == 1) {
       if (!Constants.FILTER_DIRECTIVE.equals(directives[0].getName())) {
         throw new SchemaExpressionSyntaxException(
@@ -124,7 +118,8 @@ public final class LiquibaseOSGiUtil {
       int state = bundle.getState();
       if ((state & necessaryBundleStates) != 0) {
         BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
-        List<BundleCapability> capabilities = bundleWiring.getCapabilities(LIQUIBASE_CAPABILITY_NS);
+        List<BundleCapability> capabilities =
+            bundleWiring.getCapabilities(LIQUIBASE_CHANGELOG_CAPABILITY_NS);
         for (BundleCapability capability : capabilities) {
           Map<String, Object> attributes = capability.getAttributes();
           Object schemaResourceAttr = attributes.get(LiquibaseOSGiUtil.ATTR_SCHEMA_RESOURCE);
@@ -158,7 +153,7 @@ public final class LiquibaseOSGiUtil {
       final String schemaExpression) {
 
     BundleWiring bundleWiring = currentBundle.adapt(BundleWiring.class);
-    List<BundleWire> wires = bundleWiring.getRequiredWires(LIQUIBASE_CAPABILITY_NS);
+    List<BundleWire> wires = bundleWiring.getRequiredWires(LIQUIBASE_CHANGELOG_CAPABILITY_NS);
 
     if (wires.size() == 0) {
       return null;
