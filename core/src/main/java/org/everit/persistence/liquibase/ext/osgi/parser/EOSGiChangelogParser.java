@@ -16,6 +16,7 @@
 package org.everit.persistence.liquibase.ext.osgi.parser;
 
 import org.everit.persistence.liquibase.ext.osgi.EOSGiResourceAccessor;
+import org.everit.persistence.liquibase.ext.osgi.LiquibaseEOSGiConstants;
 import org.everit.persistence.liquibase.ext.osgi.util.BundleResource;
 import org.everit.persistence.liquibase.ext.osgi.util.LiquibaseOSGiUtil;
 import org.osgi.framework.Bundle;
@@ -36,8 +37,6 @@ import liquibase.servicelocator.PrioritizedService;
  */
 public class EOSGiChangelogParser implements ChangeLogParser {
 
-  public static final String EOSGI_EXTENSION = ".eosgi";
-
   @Override
   public int getPriority() {
     return PrioritizedService.PRIORITY_DEFAULT;
@@ -46,10 +45,11 @@ public class EOSGiChangelogParser implements ChangeLogParser {
   @Override
   public DatabaseChangeLog parse(final String physicalChangeLogLocation,
       final ChangeLogParameters changeLogParameters, final ResourceAccessor resourceAccessor)
-          throws ChangeLogParseException {
+      throws ChangeLogParseException {
 
     String schemaExpression = physicalChangeLogLocation.substring(0,
-        physicalChangeLogLocation.length() - EOSGI_EXTENSION.length());
+        physicalChangeLogLocation.length()
+            - LiquibaseEOSGiConstants.INCLUDE_OSGI_EXTENSION.length());
 
     if (!(resourceAccessor instanceof OSGiResourceAccessor)) {
       throw new IllegalArgumentException(
@@ -84,7 +84,7 @@ public class EOSGiChangelogParser implements ChangeLogParser {
   @Override
   public boolean supports(final String changeLogFile, final ResourceAccessor resourceAccessor) {
     return (resourceAccessor instanceof OSGiResourceAccessor)
-        && (changeLogFile.endsWith(EOSGI_EXTENSION));
+        && (changeLogFile.endsWith(LiquibaseEOSGiConstants.INCLUDE_OSGI_EXTENSION));
   }
 
 }

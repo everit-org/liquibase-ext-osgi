@@ -81,6 +81,10 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
+            <Export-Package>
+              org.everit.persistence.liquibase.ext.osgi,
+              org.everit.persistence.liquibase.ext.osgi.util
+            </Export-Package>
             <Liquibase-Package>org.everit.persistence.liquibase.ext.osgi.parser</Liquibase-Package>
             <Fragment-Host>org.liquibase.core;bundle-version="[3.5,4)"</Fragment-Host>
           </instructions>

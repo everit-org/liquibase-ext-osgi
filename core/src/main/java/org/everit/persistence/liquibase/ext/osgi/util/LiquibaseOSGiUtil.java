@@ -24,6 +24,7 @@ import org.apache.felix.utils.manifest.Attribute;
 import org.apache.felix.utils.manifest.Clause;
 import org.apache.felix.utils.manifest.Directive;
 import org.apache.felix.utils.manifest.Parser;
+import org.everit.persistence.liquibase.ext.osgi.LiquibaseEOSGiConstants;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -38,19 +39,6 @@ import org.osgi.framework.wiring.BundleWiring;
  * Util functions to use Liquibase OSGi extension features.
  */
 public final class LiquibaseOSGiUtil {
-
-  /**
-   * Capability attribute that points to the place of the changelog file within the bundle.
-   */
-  public static final String ATTR_SCHEMA_RESOURCE = "resource";
-
-  /**
-   * The name of the capability that makes it possible to find liquibase changelogs. When an import
-   * is used within a liquibase changelog file with the "eosgi:" prefix, liquibase will browse the
-   * wires of the bundle and looks for this capability to find the exact changelog file of the
-   * inclusion.
-   */
-  public static final String LIQUIBASE_CHANGELOG_CAPABILITY_NS = "liquibase.changelog";
 
   /**
    * Creates an OSGi filter based on a schema expression.
@@ -77,7 +65,8 @@ public final class LiquibaseOSGiUtil {
           "No Attributes in the schema expresson are supported.");
     }
     Directive[] directives = clause.getDirectives();
-    String filterString = "(" + LIQUIBASE_CHANGELOG_CAPABILITY_NS + "=" + schemaName + ")";
+    String filterString =
+        "(" + LiquibaseEOSGiConstants.CAPABILITY_NS_LIQUIBASE_CHANGELOG + "=" + schemaName + ")";
     if (directives.length == 1) {
       if (!Constants.FILTER_DIRECTIVE.equals(directives[0].getName())) {
         throw new SchemaExpressionSyntaxException(
@@ -119,10 +108,12 @@ public final class LiquibaseOSGiUtil {
       if ((state & necessaryBundleStates) != 0) {
         BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
         List<BundleCapability> capabilities =
-            bundleWiring.getCapabilities(LIQUIBASE_CHANGELOG_CAPABILITY_NS);
+            bundleWiring
+                .getCapabilities(LiquibaseEOSGiConstants.CAPABILITY_NS_LIQUIBASE_CHANGELOG);
         for (BundleCapability capability : capabilities) {
           Map<String, Object> attributes = capability.getAttributes();
-          Object schemaResourceAttr = attributes.get(LiquibaseOSGiUtil.ATTR_SCHEMA_RESOURCE);
+          Object schemaResourceAttr =
+              attributes.get(LiquibaseEOSGiConstants.CAPABILITY_ATTR_RESOURCE);
           if (schemaResourceAttr != null) {
             if (filter.matches(attributes)) {
               result
@@ -153,7 +144,8 @@ public final class LiquibaseOSGiUtil {
       final String schemaExpression) {
 
     BundleWiring bundleWiring = currentBundle.adapt(BundleWiring.class);
-    List<BundleWire> wires = bundleWiring.getRequiredWires(LIQUIBASE_CHANGELOG_CAPABILITY_NS);
+    List<BundleWire> wires =
+        bundleWiring.getRequiredWires(LiquibaseEOSGiConstants.CAPABILITY_NS_LIQUIBASE_CHANGELOG);
 
     if (wires.size() == 0) {
       return null;
@@ -170,7 +162,8 @@ public final class LiquibaseOSGiUtil {
       BundleCapability capability = wire.getCapability();
       Map<String, Object> capabilityAttributes = capability.getAttributes();
       if (capabilityFilter.matches(capabilityAttributes)) {
-        Object schemaResourceAttr = capabilityAttributes.get(ATTR_SCHEMA_RESOURCE);
+        Object schemaResourceAttr =
+            capabilityAttributes.get(LiquibaseEOSGiConstants.CAPABILITY_ATTR_RESOURCE);
         if (schemaResourceAttr != null) {
           bundleResource = new BundleResource(capability.getRevision().getBundle(),
               String.valueOf(schemaResourceAttr), capabilityAttributes);
